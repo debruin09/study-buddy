@@ -1,6 +1,6 @@
 # study_buddy
 
-A new Flutter project.
+A study app that helps students refine their definitions.
 
 ## Getting Started
 
