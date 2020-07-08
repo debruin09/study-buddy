@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:study_buddy/src/models/user.dart';
-import 'package:study_buddy/src/repositories/auth_repository.dart';
+import 'package:study_buddy/models/user.dart';
+import 'package:study_buddy/repositories/auth_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

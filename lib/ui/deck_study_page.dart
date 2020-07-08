@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math' as math;
+import 'package:study_buddy/blocs/next_card_bloc/next_card_bloc.dart';
 
 import 'package:study_buddy/injection.dart';
 import 'package:study_buddy/blocs/card_bloc/card_entity_bloc.dart';
-import 'package:study_buddy/blocs/deck_bloc/deck_bloc.dart';
 import 'package:study_buddy/blocs/similarity_bloc/similarity_bloc.dart';
 import 'package:study_buddy/models/card.dart';
 import 'package:study_buddy/models/deck.dart';
 import 'package:study_buddy/models/similarity_check.dart';
+import 'package:study_buddy/services/local_notification_service.dart';
 import 'package:study_buddy/ui/shared/constants.dart';
 import 'package:study_buddy/ui/shared_widgets/shared_widgets.dart';
 
@@ -21,7 +21,7 @@ class DeckStudyPage extends StatefulWidget {
 
 class _DeckStudyPageState extends State<DeckStudyPage> {
   final CardEntityBloc _cardBloc = locator.get<CardEntityBloc>();
-  final DeckBloc _deckBloc = locator.get<DeckBloc>();
+  final NextCardBloc _nextCardBloc = locator.get<NextCardBloc>();
   SimilarityCheck checkClass = locator.get<SimilarityCheck>();
   final similarityBloc = locator.get<SimilarityBloc>();
   CardEntity currentCard;
@@ -30,12 +30,13 @@ class _DeckStudyPageState extends State<DeckStudyPage> {
   void initState() {
     super.initState();
     currentCard = widget.deck.getNextCard;
-    _deckBloc.add(NextCardEvent(currentCard: currentCard));
+    _nextCardBloc.add(GetNextCardEvent(currentCard: currentCard));
   }
 
   @override
   void dispose() {
     similarityBloc.close();
+    _cardBloc.close();
     super.dispose();
   }
 
@@ -71,18 +72,102 @@ class _DeckStudyPageState extends State<DeckStudyPage> {
   //   );
   // }
 
-  Widget answerContainer(context, {String content}) {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).accentColor,
+      appBar: appBar(context, title: "AWS Concepts"),
+      body: BlocBuilder<NextCardBloc, NextCardState>(
+          bloc: _nextCardBloc,
+          builder: (context, state) {
+            if (state is NextCardInitial) {
+              return AnswerContainer();
+            } else if (state is GetNextCardState) {
+              CardEntity card = state.currentCard;
+              print("This is current state: ${currentCard.front}");
+              return Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      BlocBuilder<CardEntityBloc, CardEntityState>(
+                          bloc: _cardBloc,
+                          builder: (context, state) {
+                            if (state is CardInitial) {
+                              return AnswerContainer(
+                                content: card.front,
+                                cardBloc: _cardBloc,
+                                deck: widget.deck,
+                                nextCardBloc: _nextCardBloc,
+                                similarityBloc: similarityBloc,
+                                currentCard: card,
+                              );
+                            } else if (state is CardFrontState) {
+                              return AnswerContainer(
+                                content: card.front,
+                                cardBloc: _cardBloc,
+                                deck: widget.deck,
+                                nextCardBloc: _nextCardBloc,
+                                similarityBloc: similarityBloc,
+                                currentCard: card,
+                              );
+                            } else if (state is CardBackState) {
+                              return AnswerContainer(
+                                content: card.back,
+                                cardBloc: _cardBloc,
+                                deck: widget.deck,
+                                nextCardBloc: _nextCardBloc,
+                                similarityBloc: similarityBloc,
+                                currentCard: card,
+                              );
+                            } else if (state is CardMeState) {
+                              return AnswerContainer(
+                                content: card.me,
+                                cardBloc: _cardBloc,
+                                deck: widget.deck,
+                                nextCardBloc: _nextCardBloc,
+                                similarityBloc: similarityBloc,
+                                currentCard: card,
+                              );
+                            }
+                            return Container();
+                          })
+                    ]),
+              );
+            }
+            return Container();
+          }),
+    );
+  }
+}
+
+class AnswerContainer extends StatelessWidget {
+  final String content;
+  final CardEntityBloc cardBloc;
+  final NextCardBloc nextCardBloc;
+  final SimilarityBloc similarityBloc;
+  CardEntity currentCard;
+  final Deck deck;
+  AnswerContainer(
+      {this.content,
+      this.cardBloc,
+      this.deck,
+      this.nextCardBloc,
+      this.similarityBloc,
+      this.currentCard});
+  final notification = locator.get<LocalNotificationService>();
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         GestureDetector(
           onLongPress: () {
-            _cardBloc.add(LongPressCardEvent());
+            cardBloc.add(LongPressCardEvent());
           },
           onDoubleTap: () {
-            _cardBloc.add(DoubleTapCardEvent());
+            cardBloc.add(DoubleTapCardEvent());
           },
           onTap: () {
-            _cardBloc.add(SingleTapCardEvent());
+            cardBloc.add(SingleTapCardEvent());
           },
           child: Container(
             alignment: Alignment.center,
@@ -90,49 +175,56 @@ class _DeckStudyPageState extends State<DeckStudyPage> {
             width: ScreenSize.screenWidth(context) * 0.9,
             padding: const EdgeInsets.only(left: 10.0, top: 8.0),
             decoration: decoration,
-            child: Text(content),
+            child: Text(content ?? "Deck is empty"),
           ),
         ),
         SizedBox(height: 30.0),
-        timeFrameWidget(
-            deck: widget.deck,
-            deckBloc: _deckBloc,
-            check: checkClass.check,
-            similarityBloc: similarityBloc),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: checkSimilarityWidget(similarityBloc: similarityBloc),
+        ),
+        Container(
+          height: 60.0,
+          width: 375.0,
+          decoration: decoration,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Expanded(
+                child: TimeFrameItem(
+                  icon: Icons.thumb_down,
+                  label: "bad",
+                  pressed: () {
+                    currentCard = deck.getNextCard;
+                    nextCardBloc
+                        .add(GetNextCardEvent(currentCard: currentCard));
+                    // notification.notification();
+                  },
+                ),
+              ),
+              Expanded(
+                child: TimeFrameItem(
+                  label: "again",
+                  icon: Icons.star_half,
+                  pressed: () {
+                    notification.notification();
+                  },
+                ),
+              ),
+              Expanded(
+                child: TimeFrameItem(
+                  icon: Icons.thumb_up,
+                  label: "good",
+                  pressed: () {
+                    notification.notification();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
         SizedBox(height: 15.0),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cards = widget.deck.cards;
-    final firstCard = cards[0];
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).accentColor,
-      appBar: appBar(context, title: "AWS Concepts"),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            BlocBuilder<CardEntityBloc, CardEntityState>(
-                bloc: _cardBloc,
-                builder: (context, state) {
-                  if (state is CardInitial) {
-                    return answerContainer(context, content: firstCard.front);
-                  } else if (state is CardFrontState) {
-                    return answerContainer(context, content: firstCard.front);
-                  } else if (state is CardBackState) {
-                    return answerContainer(context, content: firstCard.back);
-                  } else if (state is CardMeState) {
-                    return answerContainer(context, content: firstCard.me);
-                  }
-                  return Container();
-                }),
-          ],
-        ),
-      ),
     );
   }
 }

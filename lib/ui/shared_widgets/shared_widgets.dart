@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tagging/flutter_tagging.dart';
-import 'package:study_buddy/injection.dart';
-import 'package:study_buddy/blocs/deck_bloc/deck_bloc.dart';
+
 import 'package:study_buddy/blocs/similarity_bloc/similarity_bloc.dart';
+import 'package:study_buddy/injection.dart';
 import 'package:study_buddy/models/card.dart';
-import 'package:study_buddy/models/deck.dart';
 import 'package:study_buddy/models/tag_entity.dart';
 import 'package:study_buddy/repositories/tag_repository.dart';
 import 'package:study_buddy/services/local_notification_service.dart';
@@ -363,60 +362,5 @@ Widget difficultyBar(context) {
         ),
       ],
     ),
-  );
-}
-
-Widget timeFrameWidget(
-    {bool check, SimilarityBloc similarityBloc, DeckBloc deckBloc, Deck deck}) {
-  final notification = locator.get<LocalNotificationService>();
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: <Widget>[
-      check == true
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: checkSimilarityWidget(similarityBloc: similarityBloc),
-            )
-          : Container(),
-      Container(
-        height: 60.0,
-        width: 375.0,
-        decoration: decoration,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Expanded(
-              child: TimeFrameItem(
-                icon: Icons.thumb_down,
-                label: "bad",
-                pressed: () {
-                  final currentCard = deck.getNextCard;
-                  deckBloc.add(NextCardEvent(currentCard: currentCard));
-                  notification.notification();
-                },
-              ),
-            ),
-            Expanded(
-              child: TimeFrameItem(
-                label: "again",
-                icon: Icons.star_half,
-                pressed: () {
-                  notification.notification();
-                },
-              ),
-            ),
-            Expanded(
-              child: TimeFrameItem(
-                icon: Icons.thumb_up,
-                label: "good",
-                pressed: () {
-                  notification.notification();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
   );
 }

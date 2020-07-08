@@ -22,5 +22,3 @@ class ErrorDeckState extends DeckState {
   @override
   String toString() => 'ErrorDeckState { errorMessage: $errorMessage }';
 }
-
-class NextCardState extends DeckState {}

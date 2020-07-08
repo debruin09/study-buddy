@@ -10,10 +10,3 @@ class FetchDeckEvent extends DeckEvent {
   @override
   String toString() => 'Fetching data event triggered';
 }
-
-class NextCardEvent extends DeckEvent {
-  final CardEntity currentCard;
-  NextCardEvent({
-    @required this.currentCard,
-  });
-}

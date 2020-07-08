@@ -7,7 +7,7 @@ class CardEntity {
   String back;
   String me;
   String difficulty;
-  DateTime dateCreated;
+  String dateCreated = DateTime.now().toIso8601String().toString();
   bool done = false;
   List<String> tags;
 
@@ -16,7 +16,6 @@ class CardEntity {
     this.back,
     this.me,
     this.difficulty,
-    this.dateCreated,
     this.done,
     this.tags,
   });
@@ -26,7 +25,6 @@ class CardEntity {
     String back,
     String me,
     String difficulty,
-    DateTime dateCreated,
     bool done,
     List<String> tags,
   }) {
@@ -35,7 +33,6 @@ class CardEntity {
       back: back ?? this.back,
       me: me ?? this.me,
       difficulty: difficulty ?? this.difficulty,
-      dateCreated: dateCreated ?? this.dateCreated,
       done: done ?? this.done,
       tags: tags ?? this.tags,
     );
@@ -47,7 +44,6 @@ class CardEntity {
       'back': back,
       'me': me,
       'difficulty': difficulty,
-      'dateCreated': dateCreated?.millisecondsSinceEpoch,
       'done': done,
       'tags': tags,
     };
@@ -61,7 +57,6 @@ class CardEntity {
       back: map['back'],
       me: map['me'],
       difficulty: map['difficulty'],
-      dateCreated: DateTime.fromMillisecondsSinceEpoch(map['dateCreated']),
       done: map['done'],
       tags: List<String>.from(map['tags']),
     );
@@ -73,7 +68,7 @@ class CardEntity {
 
   @override
   String toString() {
-    return 'CardEntity(front: $front, back: $back, me: $me, difficulty: $difficulty, dateCreated: $dateCreated, done: $done, tags: $tags)';
+    return 'CardEntity(front: $front, back: $back, me: $me, difficulty: $difficulty, done: $done, tags: $tags)';
   }
 
   @override
@@ -85,7 +80,6 @@ class CardEntity {
         o.back == back &&
         o.me == me &&
         o.difficulty == difficulty &&
-        o.dateCreated == dateCreated &&
         o.done == done &&
         listEquals(o.tags, tags);
   }
@@ -96,7 +90,6 @@ class CardEntity {
         back.hashCode ^
         me.hashCode ^
         difficulty.hashCode ^
-        dateCreated.hashCode ^
         done.hashCode ^
         tags.hashCode;
   }

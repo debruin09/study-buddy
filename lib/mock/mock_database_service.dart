@@ -11,11 +11,15 @@ class MockDatabaseService implements DatabaseRepository {
   MockDatabaseService({@required this.myuid}) : assert(myuid != null);
 
   static final List<CardEntity> cardEntities = [
-    CardEntity(front: 'Card1', back: "17 August 2020", me: "This is me"),
-    CardEntity(front: 'Card2', back: "17 August 2020", me: "This is a test me"),
-    CardEntity(front: 'Card3', back: "9 December 2020", me: "Aanother one"),
-    CardEntity(front: 'Card2', back: "17 August 2020", me: "This is a test me"),
-    CardEntity(front: 'Card3', back: "9 December 2020", me: "Aanother one")
+    CardEntity(
+        front: 'Amazon SNS',
+        back: "What is sns provide a definition",
+        me: "This is me"),
+    CardEntity(
+        front: 'Dynamo DB',
+        back: "It is a serverless DB",
+        me: "This is a test me"),
+    CardEntity(front: 'AWS S3', back: "Storage service", me: "Another one"),
   ];
 
   static final List<Deck> myDecks = [

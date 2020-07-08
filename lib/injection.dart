@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:study_buddy/blocs/next_card_bloc/next_card_bloc.dart';
 import 'package:study_buddy/mock/mock_api_service.dart';
 import 'package:study_buddy/mock/mock_auth_service.dart';
 import 'package:study_buddy/mock/mock_database_service.dart';
@@ -32,6 +33,9 @@ void setupLocator() {
 
   locator
       .registerLazySingleton<DeckBloc>(() => DeckBloc(repository: locator()));
+
+  locator.registerLazySingleton<NextCardBloc>(
+      () => NextCardBloc(databaseRepository: locator()));
 
   ///[Repositories]
   locator.registerLazySingleton<SimilarityRepository>(() => MockApiService());

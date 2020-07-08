@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 import 'package:study_buddy/models/card.dart';
 
-class Deck {
+class Deck extends Equatable {
   String deckName;
   List<CardEntity> cards = [];
   String lastCreated;
@@ -24,8 +24,7 @@ class Deck {
   CardEntity get getNextCard {
     _currentCardIndex++;
     if (_currentCardIndex >= length) {
-      return null;
-      //ards[_currentCardIndex - 1]; // no question left
+      return cards.last; // no question left return last question
 
     }
     return cards[_currentCardIndex];
@@ -34,25 +33,6 @@ class Deck {
   @override
   String toString() {
     return 'Deck(deckName: $deckName, cards: $cards, lastCreated: $lastCreated, tags: $tags)';
-  }
-
-  @override
-  bool operator ==(Object o) {
-    if (identical(this, o)) return true;
-
-    return o is Deck &&
-        o.deckName == deckName &&
-        listEquals(o.cards, cards) &&
-        o.lastCreated == lastCreated &&
-        listEquals(o.tags, tags);
-  }
-
-  @override
-  int get hashCode {
-    return deckName.hashCode ^
-        cards.hashCode ^
-        lastCreated.hashCode ^
-        tags.hashCode;
   }
 
   Map<String, dynamic> toMap() {
@@ -79,4 +59,7 @@ class Deck {
   String toJson() => json.encode(toMap());
 
   static Deck fromJson(String source) => fromMap(json.decode(source));
+
+  @override
+  List<Object> get props => [deckName, cards, lastCreated, tags];
 }

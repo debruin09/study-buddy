@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:study_buddy/models/card.dart';
 import 'package:study_buddy/models/deck.dart';
 import 'package:study_buddy/repositories/database_repository.dart';
 
@@ -29,10 +28,6 @@ class DeckBloc extends Bloc<DeckEvent, DeckState> {
       } catch (e) {
         yield ErrorDeckState(errorMessage: e.message);
       }
-    }
-
-    if (event is NextCardEvent) {
-      yield NextCardState();
     }
   }
 }
