@@ -9,3 +9,8 @@ class GetNextCardState extends NextCardState {
   final CardEntity currentCard;
   GetNextCardState({@required this.currentCard}) : assert(currentCard != null);
 }
+
+class ErrorNextCardState extends NextCardState {
+  final String message;
+  ErrorNextCardState({@required this.message});
+}

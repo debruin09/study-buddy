@@ -1,15 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:study_buddy/failures/failures.dart';
 import 'package:study_buddy/models/card.dart';
 import 'package:study_buddy/models/deck.dart';
 import 'package:study_buddy/models/user.dart';
 import 'package:study_buddy/repositories/database_repository.dart';
 
-class MockDatabaseService implements DatabaseRepository {
-  final String myuid;
-  MockDatabaseService({@required this.myuid}) : assert(myuid != null);
-
+class FakeClient {
+  // Firebase
   static final List<CardEntity> cardEntities = [
     CardEntity(
         front: 'Amazon SNS',
@@ -22,13 +22,26 @@ class MockDatabaseService implements DatabaseRepository {
     CardEntity(front: 'AWS S3', back: "Storage service", me: "Another one"),
   ];
 
-  static final List<Deck> myDecks = [
+  final List<Deck> myDecks = [
     Deck(deckName: 'Deck1', lastCreated: "17 August 2020", cards: cardEntities),
     Deck(deckName: 'Deck2', lastCreated: "17 August 2020", cards: cardEntities),
     Deck(deckName: 'Deck3', lastCreated: "9 December 2020", cards: []),
     Deck(deckName: 'Deck1', lastCreated: "17 August 2020", cards: []),
     Deck(deckName: 'Deck3', lastCreated: "9 December 2020", cards: []),
   ];
+
+  Future<Stream<List<Deck>>> listOfDecksStream() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    // throw SocketException('No Internet');
+    // throw HttpException('404');
+    return Stream.value(myDecks);
+  }
+}
+
+class MockDatabaseService implements DatabaseRepository {
+  final String myuid;
+  FakeClient fakeClient = FakeClient();
+  MockDatabaseService({@required this.myuid}) : assert(myuid != null);
 
   // updates users data in the database
   @override
@@ -43,20 +56,15 @@ class MockDatabaseService implements DatabaseRepository {
   // create new deck
   @override
   Future<void> createNewDeck(String deckName, {List<CardEntity> cards}) async {
-    myDecks
-        .add(Deck(deckName: deckName, lastCreated: 'New Date', cards: cards));
-    return myDecks;
+    // myDecks
+    //     .add(Deck(deckName: deckName, lastCreated: 'New Date', cards: cards));
+    // return myDecks;
   }
 
   // return current user stream
   Stream<User> myUserStream() async* {
     await Future.delayed(Duration(seconds: 1));
     yield User(uid: "user-klue");
-  }
-
-  Stream<List<Deck>> listOfDecksStream() async* {
-    await Future.delayed(Duration(seconds: 1));
-    yield myDecks;
   }
 
   // Single Card stream
@@ -81,19 +89,47 @@ class MockDatabaseService implements DatabaseRepository {
 
   @override
   Future<void> deleteDeck({String id}) async {
-    return null;
+    // return myDecks.remove(deck);
   }
+
+  // Stream<List<Deck>> myDecks = Stream.value([
+  //   Deck(),
+  //   Deck(),
+  //   Deck()
+  // ]);
 
   @override
   Stream<List<Deck>> get decks {
-    return listOfDecksStream().asBroadcastStream();
+    try {
+      Stream<List<Deck>> response;
+      fakeClient.listOfDecksStream().then((value) => response = value);
+      return response;
+
+      // return response;
+    } on SocketException {
+      throw Failure('No Internet connection 😑');
+    } on HttpException {
+      throw Failure("Couldn't find the post 😱");
+    }
   }
+
+  // @override
+  // Future<List<Deck>> makeReq() async {
+  //   try {
+  //     final response = await fakeClient.testing();
+  //     return response;
+  //   } on SocketException {
+  //     throw Failure('No Internet connection 😑');
+  //   } on HttpException {
+  //     throw Failure("Couldn't find the post 😱");
+  //   }
+  // }
 
   @override
   String toString() => 'MockDatabaseService(uid: $uid)';
 
   @override
-  String get uid => myuid;
+  String get uid => "myuid";
 
   @override
   Stream<CardEntity> get singleCard => cardsStream().asBroadcastStream();

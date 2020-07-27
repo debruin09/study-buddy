@@ -23,9 +23,10 @@ class Deck extends Equatable {
 
   CardEntity get getNextCard {
     _currentCardIndex++;
-    if (_currentCardIndex >= length) {
-      return cards.last; // no question left return last question
-
+    if (cards.isEmpty) {
+      return CardEntity(back: "", front: "", tags: [], me: "");
+    } else if (_currentCardIndex >= length) {
+      return cards.last; // no card left return last card
     }
     return cards[_currentCardIndex];
   }

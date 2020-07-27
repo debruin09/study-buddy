@@ -11,14 +11,14 @@ class DeckInitial extends DeckState {}
 class LoadingDeckState extends DeckState {}
 
 class LoadedDeckState extends DeckState {
-  final Stream<List<Deck>> decks;
+  final List<Deck> decks;
   LoadedDeckState({@required this.decks}) : assert(decks != null);
 }
 
 class ErrorDeckState extends DeckState {
-  final String errorMessage;
+  final Failure failure;
 
-  ErrorDeckState({@required this.errorMessage}) : assert(errorMessage != null);
+  ErrorDeckState({@required this.failure}) : assert(failure != null);
   @override
-  String toString() => 'ErrorDeckState { errorMessage: $errorMessage }';
+  String toString() => 'ErrorDeckState { errorMessage: $failure }';
 }

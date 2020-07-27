@@ -1,4 +1,6 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:study_buddy/failures/failures.dart';
 import 'package:study_buddy/models/card.dart';
 import 'package:study_buddy/models/deck.dart';
 import 'package:study_buddy/models/user.dart';
@@ -17,4 +19,5 @@ abstract class DatabaseRepository {
   Stream<User> get userData;
   Stream<List<Deck>> get decks;
   Stream<CardEntity> get singleCard;
+  // Future makeReq();
 }

@@ -11,6 +11,7 @@ part 'next_card_state.dart';
 class NextCardBloc extends Bloc<NextCardEvent, NextCardState> {
   final DatabaseRepository databaseRepository;
   bool isDeckEmpty = true;
+  String err;
 
   NextCardBloc({@required this.databaseRepository})
       : assert(databaseRepository != null);
@@ -19,14 +20,17 @@ class NextCardBloc extends Bloc<NextCardEvent, NextCardState> {
     NextCardEvent event,
   ) async* {
     if (event is GetNextCardEvent) {
-      databaseRepository.decks.map((event) => event.map((e) {
-            isDeckEmpty = e.cards.isEmpty;
-            print("This is is deck empty: $isDeckEmpty");
-          }));
-      if (isDeckEmpty == true) {
-        yield NextCardInitial();
+      try {
+        yield GetNextCardState(currentCard: event.currentCard);
+      } catch (e) {
+        databaseRepository.decks.handleError((error) => err = error);
+        yield ErrorNextCardState(message: "$e and $err");
       }
-      yield GetNextCardState(currentCard: event.currentCard);
+
+      // if (isDeckEmpty == true) {
+      //   yield NextCardInitial();
+      // }
+
     }
   }
 

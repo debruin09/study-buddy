@@ -84,7 +84,6 @@ class _DeckStudyPageState extends State<DeckStudyPage> {
               return AnswerContainer();
             } else if (state is GetNextCardState) {
               CardEntity card = state.currentCard;
-              print("This is current state: ${currentCard.front}");
               return Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -133,6 +132,8 @@ class _DeckStudyPageState extends State<DeckStudyPage> {
                           })
                     ]),
               );
+            } else if (state is ErrorNextCardState) {
+              return Text("${state.message}");
             }
             return Container();
           }),
